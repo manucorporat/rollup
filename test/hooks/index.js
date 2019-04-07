@@ -351,7 +351,7 @@ describe('hooks', () => {
 				assert.equal(output[0].isEntry, true);
 				assert.equal(
 					output[0].code,
-					`var input = new URL('../assets/test-19916f7d.ext', import.meta.url).href;\n\nexport default input;\n`
+					`var input = new URL('assets/test-19916f7d.ext', import.meta.url).href;\n\nexport default input;\n`
 				);
 			});
 	});
@@ -378,7 +378,7 @@ describe('hooks', () => {
 			.then(({ output }) => {
 				assert.equal(
 					output[0].code,
-					`var input = new URL('../assets/test-19916f7d.ext', import.meta.url).href;\n\nexport default input;\n`
+					`var input = new URL('assets/test-19916f7d.ext', import.meta.url).href;\n\nexport default input;\n`
 				);
 				assert.equal(output[1].fileName, 'assets/test-19916f7d.ext');
 				assert.equal(output[1].source, 'hello world');
@@ -404,7 +404,7 @@ describe('hooks', () => {
 			.then(({ output }) => {
 				assert.equal(
 					output[0].code,
-					`var input = new URL('../assets/test-19916f7d.ext', import.meta.url).href;\n\nexport default input;\n`
+					`var input = new URL('assets/test-19916f7d.ext', import.meta.url).href;\n\nexport default input;\n`
 				);
 				assert.equal(output[1].fileName, 'assets/test-19916f7d.ext');
 				assert.equal(output[1].source, 'hello world');
@@ -439,7 +439,7 @@ describe('hooks', () => {
 			.then(({ output }) => {
 				assert.equal(
 					output[0].code,
-					`var input = new URL('../assets/test-19916f7d.ext', import.meta.url).href;\n\nexport default input;\n`
+					`var input = new URL('assets/test-19916f7d.ext', import.meta.url).href;\n\nexport default input;\n`
 				);
 				assert.equal(output[1].fileName, 'assets/test-19916f7d.ext');
 				assert.equal(output[1].source, 'hello world');
@@ -493,7 +493,7 @@ describe('hooks', () => {
 					code,
 					`'use strict';
 
-var input = new (typeof URL !== 'undefined' ? URL : require('ur'+'l').URL)((process.browser ? '' : 'file:') + __dirname + '/assets/test-19916f7d.ext', process.browser && document.baseURI).href;
+var input = (typeof document === 'undefined' ? new (require('u' + 'rl').URL)('file:' + __dirname + '/assets/test-19916f7d.ext').href : new URL((document.currentScript && document.currentScript.src || document.baseURI) + '/../assets/test-19916f7d.ext').href);
 
 module.exports = input;
 `
@@ -759,7 +759,7 @@ module.exports = input;
 							assert.equal(outputBundle['assets/test-19916f7d.ext'].source, 'hello world');
 							assert.equal(
 								outputBundle['input.js'].code,
-								`var input = new URL('../assets/test-19916f7d.ext', import.meta.url).href;\n\nexport default input;\n`
+								`var input = new URL('assets/test-19916f7d.ext', import.meta.url).href;\n\nexport default input;\n`
 							);
 						}
 					}

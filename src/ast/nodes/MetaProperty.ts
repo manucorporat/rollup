@@ -10,26 +10,26 @@ import { NodeBase } from './shared/Node';
 
 const getResolveUrl = (path: string, URL: string = 'URL') => `new ${URL}(${path}).href`;
 
-const amdModuleUrl = `(typeof process !== 'undefined' && process.versions && process.versions.node ? 'file:' : '') + module.uri`;
-
-const globalRelUrlMechanism = (relPath: string) => {
-	return getResolveUrl(
-		`(typeof document !== 'undefined' ? document.currentScript && document.currentScript.src || document.baseURI : 'file:' + __filename) + '/../${relPath}'`,
-		`(typeof URL !== 'undefined' ? URL : require('ur'+'l').URL)`
+const getRelativeUrlFromDocument = (relativePath: string) =>
+	getResolveUrl(
+		`(document.currentScript && document.currentScript.src || document.baseURI) + '/../${relativePath}'`
 	);
-};
 
-const relUrlMechanisms: Record<string, (relPath: string) => string> = {
-	amd: (relPath: string) => getResolveUrl(`${amdModuleUrl} + '/../${relPath}'`),
-	cjs: (relPath: string) =>
-		getResolveUrl(
-			`(process.browser ? '' : 'file:') + __dirname + '/${relPath}', process.browser && document.baseURI`,
-			`(typeof URL !== 'undefined' ? URL : require('ur'+'l').URL)`
-		),
-	es: (relPath: string) => getResolveUrl(`'../${relPath}', import.meta.url`),
-	iife: globalRelUrlMechanism,
-	system: (relPath: string) => getResolveUrl(`'../${relPath}', module.url`),
-	umd: globalRelUrlMechanism
+const relativeUrlMechanisms: Record<string, (relativePath: string) => string> = {
+	amd: relativePath => getResolveUrl(`module.uri + '/../${relativePath}', document.baseURI`),
+	cjs: relativePath =>
+		`(typeof document === 'undefined' ? ${getResolveUrl(
+			`'file:' + __dirname + '/${relativePath}'`,
+			`(require('u' + 'rl').URL)`
+		)} : ${getRelativeUrlFromDocument(relativePath)})`,
+	es: relativePath => getResolveUrl(`'${relativePath}', import.meta.url`),
+	iife: relativePath => getRelativeUrlFromDocument(relativePath),
+	system: relativePath => getResolveUrl(`'${relativePath}', module.meta.url`),
+	umd: relativePath =>
+		`(typeof document === 'undefined' ? ${getResolveUrl(
+			`'file:' + __dirname + '/${relativePath}'`,
+			`(require('u' + 'rl').URL)`
+		)} : ${getRelativeUrlFromDocument(relativePath)})`
 };
 
 export default class MetaProperty extends NodeBase {
@@ -71,7 +71,7 @@ export default class MetaProperty extends NodeBase {
 		if (importMetaProperty.startsWith('ROLLUP_ASSET_URL_')) {
 			const assetFileName = this.context.getAssetFileName(importMetaProperty.substr(17));
 			const relPath = normalize(relative(dirname(chunkId), assetFileName));
-			code.overwrite(parent.start, parent.end, relUrlMechanisms[format](relPath));
+			code.overwrite(parent.start, parent.end, relativeUrlMechanisms[format](relPath));
 			return true;
 		}
 
