@@ -11,19 +11,16 @@ import { NodeBase } from './shared/Node';
 export default class MetaProperty extends NodeBase {
 	meta: Identifier;
 	property: Identifier;
-	rendered: boolean;
 	type: NodeType.tMetaProperty;
 
 	initialise() {
 		if (this.meta.name === 'import') {
-			this.rendered = false;
 			this.context.addImportMeta(this);
 		}
 		this.included = false;
 	}
 
 	render(code: MagicString, options: RenderOptions) {
-		if (this.meta.name === 'import') this.rendered = true;
 		super.render(code, options);
 	}
 
